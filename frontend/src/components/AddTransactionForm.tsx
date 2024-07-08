@@ -62,6 +62,7 @@ export default function AddTransactionForm({ reset }: { reset: () => void }) {
                                 <select
                                     autoFocus
                                     value={transactionType}
+                                    // @ts-expect-error - to validate the type
                                     onChange={e => setTransactionType(e.target.value)}
                                 >
                                     <option value="income">הכנסה</option>
