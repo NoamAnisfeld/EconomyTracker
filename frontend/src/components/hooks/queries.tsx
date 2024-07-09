@@ -39,8 +39,7 @@ export function useFetchCategoryNames() {
         queryFn: fetchCategories,
         select: transformerFn,
         queryKey: ['categories'],
-        // @ts-expect-error - initialData is incorrectly expected to match the queryFn return type, while it should actually match the select return type
-        initialData: {},
+        initialData: [],
     });
 }
 
@@ -56,8 +55,7 @@ export function useFetchSubcategoryNames() {
         queryFn: () => fetchSubcategories(),
         select: transformerFn,
         queryKey: ['subcategories'],
-        // @ts-expect-error - initialData is incorrectly expected to match the queryFn return type, while it should actually match the select return type
-        initialData: {},
+        initialData: [],
     });
 }
 
@@ -73,7 +71,6 @@ export function useFetchSubcategoryMapping() {
         queryFn: () => fetchSubcategories(),
         select: transformerFn,
         queryKey: ['subcategories'],
-        // @ts-expect-error - initialData is incorrectly expected to match the queryFn return type, while it should actually match the select return type
-        initialData: {},
+        initialData: [],
     });
 }
