@@ -38,7 +38,7 @@ export default function AddTransactionForm({ reset }: { reset: () => void }) {
     const { data: subcategories } = useQuery({
         queryFn: () => fetchSubcategories(categoryId),
         queryKey: ['categories', categoryId, 'subcategories'],
-        initialData: [],
+        placeholderData: [],
         enabled: Boolean(categoryId),
     });
     const addTransactionMutation = useMutation({
