@@ -6,7 +6,7 @@ export function useFetchCategories() {
     return useQuery({
         queryFn: fetchCategories,
         queryKey: ['categories'],
-        placeholderData: [],
+        initialData: [],
     });
 }
 
@@ -14,7 +14,7 @@ export function useFetchSubcategories() {
     return useQuery({
         queryFn: () => fetchSubcategories(),
         queryKey: ['subcategories'],
-        placeholderData: [],
+        initialData: [],
     });
 }
 
@@ -22,7 +22,7 @@ export function useFetchTransactions() {
     return useQuery({
         queryFn: () => fetchTransactions(),
         queryKey: ['transactions'],
-        placeholderData: [],
+        initialData: [],
     });
 }
 
@@ -39,7 +39,7 @@ export function useFetchCategoryNames() {
         queryFn: fetchCategories,
         select: transformerFn,
         queryKey: ['categories'],
-        placeholderData: [],
+        initialData: [],
     });
 }
 
@@ -55,7 +55,7 @@ export function useFetchSubcategoryNames() {
         queryFn: () => fetchSubcategories(),
         select: transformerFn,
         queryKey: ['subcategories'],
-        placeholderData: [],
+        initialData: [],
     });
 }
 
@@ -71,6 +71,6 @@ export function useFetchSubcategoryMapping() {
         queryFn: () => fetchSubcategories(),
         select: transformerFn,
         queryKey: ['subcategories'],
-        placeholderData: [],
+        initialData: [],
     });
 }
