@@ -1,11 +1,13 @@
 import { fetchCategories, fetchSubcategories, fetchTransactions } from "@/requests";
-import { Category, Subcategory } from "@/schemas";
+import type { Category, Subcategory, TransactionType } from "@/schemas";
 import { useQuery } from "@tanstack/react-query";
 
-export function useFetchCategories() {
+export function useFetchCategories(transactionType?: TransactionType) {
     return useQuery({
         queryFn: fetchCategories,
         queryKey: ['categories'],
+        select: (categories) => 
+            transactionType ? categories.filter(category => category.type === transactionType) : categories,
         initialData: [],
     });
 }
@@ -26,8 +28,11 @@ export function useFetchTransactions() {
     });
 }
 
-export function useFetchCategoryNames() {
+export function useFetchCategoryNames(transactionType?: TransactionType) {
 
+    function filterFn(categories: Category[]) {
+        return transactionType ? categories.filter(category => category.type === transactionType) : categories
+    }
     function transformerFn(categories: Category[]) {
         return categories.reduce((acc, category) => {
             acc[category._id] = category.name;
@@ -37,7 +42,7 @@ export function useFetchCategoryNames() {
 
     return useQuery({
         queryFn: fetchCategories,
-        select: transformerFn,
+        select: data => transformerFn(filterFn(data)),
         queryKey: ['categories'],
         initialData: [],
     });

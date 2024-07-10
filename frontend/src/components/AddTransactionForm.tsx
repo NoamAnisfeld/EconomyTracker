@@ -2,15 +2,13 @@ import { Button as UiButton, type ButtonProps as UiButtonProps } from "@/compone
 import {
     Card,
     CardContent,
-    CardFooter,
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { useState, type FormEventHandler } from "react"
-import { type TransactionType } from '@/schemas';
+import { Category, Subcategory, type TransactionType } from '@/schemas';
 import { useFetchCategories } from "./hooks/queries"
 import { addTransaction, fetchSubcategories } from "@/requests"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { Calendar } from "./ui/calendar"
 import { cn } from "@/tailwind/utils";
 
 function Button({ children, className, ...props }: UiButtonProps) {
@@ -26,19 +24,19 @@ function Button({ children, className, ...props }: UiButtonProps) {
 
 export default function AddTransactionForm({ reset }: { reset: () => void }) {
 
+    const [amount, setAmount] = useState(0);
+    const [month, setMonth] = useState((new Date).getMonth() + 1);
+    const [year, setYear] = useState((new Date).getFullYear());
     const [transactionType, setTransactionType] = useState<TransactionType | undefined>();
     const [categoryId, setCategoryId] = useState('');
     const [subcategoryId, setSubcategoryId] = useState('');
-    const [amount, setAmount] = useState(0);
-    const [date, setDate] = useState(new Date());
-    const isDataValid = Boolean(transactionType && amount && categoryId && subcategoryId);
 
     const queryClient = useQueryClient();
-    const { data: categories } = useFetchCategories();
+    const { data: categories } = useFetchCategories(transactionType);
     const { data: subcategories } = useQuery({
         queryFn: () => fetchSubcategories(categoryId),
         queryKey: ['categories', categoryId, 'subcategories'],
-        placeholderData: [],
+        initialData: [],
         enabled: Boolean(categoryId),
     });
     const addTransactionMutation = useMutation({
@@ -51,13 +49,13 @@ export default function AddTransactionForm({ reset }: { reset: () => void }) {
 
     const handleSubmit: FormEventHandler = (e) => {
         e.preventDefault();
-        if (!isDataValid) return;
+        if (!transactionType || !amount || !subcategoryId) return;
 
         addTransactionMutation.mutate({
             subcategory_id: subcategoryId,
             amount,
             type: transactionType,
-            date: date.valueOf(),
+            date: new Date(year, month - 1).valueOf(),
         })
     }
 
@@ -65,166 +63,169 @@ export default function AddTransactionForm({ reset }: { reset: () => void }) {
         <form onSubmit={handleSubmit} className="w-[500px]">
             <Card className="w-full">
                 <CardContent className="grid p-4 gap-4">
-                    <AddIncomeOrExpense
-                        {...{
-                            transactionType,
-                            setTransactionType,
-                            categories,
-                            subcategories,
-                            categoryId,
-                            setCategoryId,
-                            subcategoryId,
-                            setSubcategoryId,
-                            amount,
-                            setAmount,
-                            date,
-                            setDate,
-                        }}
-                    />
+                    <div className="flex gap-4">
+                        <InputAmount value={amount} onChange={setAmount} />
+                        <SelectMonth month={month} year={year} onSelected={setMonth} />
+                        <SelectYear year={year} onSelected={setYear} />
+                    </div>
+                    {!transactionType
+                        ? <SelectIncomeOrExpense
+                            onSelected={setTransactionType}
+                        />
+                        : !categoryId
+                            ? <SelectCategory
+                                categories={categories}
+                                onSelected={setCategoryId}
+                                onBack={() => setTransactionType(undefined)}
+                            />
+                            : <SelectSubcategory
+                                subcategories={subcategories}
+                                onSelected={setSubcategoryId}
+                                onBack={() => setCategoryId('')}
+                            />
+                    }
                 </CardContent>
-                {isDataValid
-                    ? <CardFooter>
-                        <Button type="submit" className="w-full">הוספה</Button>
-                    </CardFooter>
-                    : undefined
-                }
             </Card>
         </form>
     )
 }
 
-function AddIncomeOrExpense({
-    transactionType,
-    setTransactionType,
-    categories,
-    subcategories,
-    categoryId,
-    setCategoryId,
-    subcategoryId,
-    setSubcategoryId,
-    amount,
-    setAmount,
-    date,
-    setDate,
+function InputAmount({
+    value,
+    onChange,
+}: {
+    value: number,
+    onChange: (value: number) => void,
 }) {
-    if (transactionType) {
-        return (
-            <SelectCategory
-                {...{
-                    transactionType,
-                    categories: categories.filter(category => category.type === transactionType),
-                    subcategories,
-                    categoryId,
-                    setCategoryId,
-                    subcategoryId,
-                    setSubcategoryId,
-                    amount,
-                    setAmount,
-                    date,
-                    setDate,
-                }}
-            />
-        )
-    }
+    return <Input
+        type="number"
+        required
+        min={0}
+        max={1000000000}
+        value={value || ''}
+        placeholder="סכום"
+        onChange={e => onChange(Number(e.target.value))}
+    />
+}
+
+function SelectMonth({
+    month,
+    year,
+    onSelected,
+}: {
+    month: number,
+    year: number,
+    onSelected: (value: number) => void,
+}) {
+    const monthNames = ['ינואר', 'פברואר', 'מרץ', 'אפריל', 'מאי', 'יוני', 'יולי', 'אוגוסט', 'ספטמבר', 'אוקטובר', 'נובמבר', 'דצמבר'];
 
     return (
-        <div className="flex flex-wrap m-auto gap-4">
-            <Button onClick={() => setTransactionType('income')}>הוספת הכנסה</Button>
-            <Button onClick={() => setTransactionType('expense')}>הוספת הוצאה</Button>
-        </div>
+        <select required onChange={e => onSelected(Number(e.target.value))}>
+            {monthNames.map((monthName, i) =>
+                <option
+                    key={i + 1}
+                    value={i + 1}
+                    selected={month === i + 1}
+                    disabled={year === new Date().getFullYear() && i > new Date().getMonth()}
+                >
+                    {monthName}
+                </option>
+            )}
+        </select>
     )
+}
+
+function SelectYear({
+    year,
+    onSelected,
+}: {
+    year: number,
+    onSelected: (value: number) => void,
+}) {
+    return (
+        <select required onChange={e => onSelected(Number(e.target.value))}>
+            {[...Array(10)].map((_, i) =>
+                <option
+                    key={i}
+                    value={new Date().getFullYear() - i}
+                    selected={year === new Date().getFullYear() - i}
+                >
+                    {new Date().getFullYear() - i}
+                </option>
+            )}
+        </select>
+    )
+}
+
+function SelectIncomeOrExpense({
+    onSelected,
+}: {
+    onSelected: (value: TransactionType | undefined) => void,
+}) {
+    return (<>
+        <div className="flex flex-wrap m-auto gap-4">
+            <Button onClick={() => onSelected('income')}>הוספת הכנסה</Button>
+            <Button onClick={() => onSelected('expense')}>הוספת הוצאה</Button>
+        </div>
+    </>)
 }
 
 function SelectCategory({
     categories,
-    subcategories,
-    categoryId,
-    setCategoryId,
-    subcategoryId,
-    setSubcategoryId,
-    amount,
-    setAmount,
-    date,
-    setDate,
+    onSelected,
+    onBack,
+}: {
+    categories: Category[],
+    onSelected: (categoryId: string) => void,
+    onBack: () => void,
 }) {
-    if (categoryId) {
-        return (
-            <SelectSubcategory
-                {...{
-                    subcategories,
-                    subcategoryId,
-                    setSubcategoryId,
-                    amount,
-                    setAmount,
-                    date,
-                    setDate,
-                }}
-            />
-        )
-    }
-
-    return (<div className="flex flex-wrap m-auto gap-4">
-        {categories.map(category => (
-            <Button
-                key={category._id}
-                onClick={() => setCategoryId(category._id)}
-            >
-                {category.name}
-            </Button>
-        ))}
-    </div>)
+    return (<>
+        <BackButton onClick={onBack} />
+        <div className="flex flex-wrap m-auto gap-4">
+            {categories.map(category => (
+                <Button
+                    key={category._id}
+                    onClick={() => onSelected(category._id)}
+                >
+                    {category.name}
+                </Button>
+            ))}
+        </div>
+    </>)
 }
 
 function SelectSubcategory({
     subcategories,
-    subcategoryId,
-    setSubcategoryId,
-    amount,
-    setAmount,
-    date,
-    setDate,
+    onSelected,
+    onBack,
+}: {
+    subcategories: Subcategory[],
+    onSelected: (categoryId: string) => void,
+    onBack: () => void,
 }) {
-    if (subcategoryId) {
-        return (
-            <SelectAmountAndDate
-                {...{
-                    amount,
-                    setAmount,
-                    date,
-                    setDate,
-                }}
-            />
-        )
-    }
-
-    return (<div className="flex flex-wrap m-auto gap-4">
-        {subcategories.map(subcategory => (
-            <Button
-                key={subcategory._id}
-                onClick={() => setSubcategoryId(subcategory._id)}
-            >
-                {subcategory.name}
-            </Button>
-        ))}
-    </div>)
+    return (<>
+        <BackButton onClick={onBack} />
+        <div className="flex flex-wrap m-auto gap-4">
+            {subcategories.map(subcategory => (
+                <Button
+                    key={subcategory._id}
+                    onClick={() => onSelected(subcategory._id)}
+                >
+                    {subcategory.name}
+                </Button>
+            ))}
+        </div>
+    </>)
 }
 
-function SelectAmountAndDate({ amount, setAmount, date, setDate }) {
-    return (
-        <div className="flex m-auto gap-4">
-            <Input
-                type="number"
-                min={0}
-                max={1000000000}
-                value={amount || ''}
-                onChange={e => setAmount(Number(e.target.value))}
-                placeholder="סכום"
-            />
-            <Input
-                type="date"
-                value={date.toISOString().split('T')[0]}
-                onChange={e => setDate(new Date(e.target.value))}
-            />
-        </div>
-    )
+function BackButton({
+    onClick,
+}: {
+    onClick: () => void,
+}) {
+    return (<div>
+        <UiButton onClick={onClick} variant="outline">
+            {"<= חזרה"}
+        </UiButton>
+    </div>)
 }
