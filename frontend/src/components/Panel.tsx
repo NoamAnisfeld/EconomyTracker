@@ -1,5 +1,5 @@
 import { useState } from "react";
-import AddTransactionForm from "./AddTransactionForm";
+import AddTransactionForm from "./add-transaction-flow/AddTransactionForm";
 import TransactionList from "./TransactionList";
 
 export default function Panel() {
