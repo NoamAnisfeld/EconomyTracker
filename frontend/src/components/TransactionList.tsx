@@ -45,7 +45,7 @@ export default function TransactionList() {
             </thead>
             <tbody>{
                 transactions.reverse().map((transaction) =>
-                    <tr key={transaction._id}>
+                    <tr key={transaction._id} className={transaction.amount > 0 ? 'bg-green-500' : 'bg-red-500'}>
                         {tableHeadersAndProperties.map(([, property]) =>
                             <td
                                 className="p-2"

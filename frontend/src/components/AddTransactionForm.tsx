@@ -62,7 +62,7 @@ export default function AddTransactionForm({ reset }: { reset: () => void }) {
     }
 
     return (
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} className="w-[500px]">
             <Card className="w-full">
                 <CardContent className="grid p-4 gap-4">
                     <AddIncomeOrExpense
@@ -82,9 +82,12 @@ export default function AddTransactionForm({ reset }: { reset: () => void }) {
                         }}
                     />
                 </CardContent>
-                <CardFooter>
-                    <Button className="w-full" disabled={!isDataValid}>הוספה</Button>
-                </CardFooter>
+                {isDataValid
+                    ? <CardFooter>
+                        <Button type="submit" className="w-full">הוספה</Button>
+                    </CardFooter>
+                    : undefined
+                }
             </Card>
         </form>
     )
@@ -125,7 +128,7 @@ function AddIncomeOrExpense({
     }
 
     return (
-        <div className="flex justify-center gap-4">
+        <div className="flex flex-wrap m-auto gap-4">
             <Button onClick={() => setTransactionType('income')}>הוספת הכנסה</Button>
             <Button onClick={() => setTransactionType('expense')}>הוספת הוצאה</Button>
         </div>
@@ -160,7 +163,7 @@ function SelectCategory({
         )
     }
 
-    return (<div className="flex gap-4">
+    return (<div className="flex flex-wrap m-auto gap-4">
         {categories.map(category => (
             <Button
                 key={category._id}
@@ -194,7 +197,7 @@ function SelectSubcategory({
         )
     }
 
-    return (<div className="flex gap-4">
+    return (<div className="flex flex-wrap m-auto gap-4">
         {subcategories.map(subcategory => (
             <Button
                 key={subcategory._id}
@@ -208,10 +211,12 @@ function SelectSubcategory({
 
 function SelectAmountAndDate({ amount, setAmount, date, setDate }) {
     return (
-        <div className="flex gap-4">
+        <div className="flex m-auto gap-4">
             <Input
                 type="number"
-                value={amount}
+                min={0}
+                max={1000000000}
+                value={amount || ''}
                 onChange={e => setAmount(Number(e.target.value))}
                 placeholder="סכום"
             />
