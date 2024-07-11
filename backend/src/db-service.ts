@@ -1,6 +1,14 @@
 import { MongoClient } from 'mongodb';
 import { TransactionCreationInfo, transactionCreationInfoSchema } from './schemas.js';
 
+export {
+    getUsers,
+    getCategories,
+    getSubcategories,
+    getTransactions,
+    createTransaction,
+}
+
 const { DB_URL, DB_NAME } = process.env;
 if (!DB_URL) {
     throw new Error('DB_URL is not set');
@@ -10,16 +18,16 @@ if (!DB_NAME) {
 }
 const _db = new MongoClient(DB_URL).db(DB_NAME);
 
-export async function getUsers() {
+async function getUsers() {
     return _db.collection('users').find().toArray();
 }
 
-export async function getCategories() {
+async function getCategories() {
     const categories = await _db.collection('categories').find().toArray();
     return categories;
 }
 
-export async function getSubcategories(categoryId?: string) {
+async function getSubcategories(categoryId?: string) {
 
     const collection = _db.collection('subcategories');
     const results = await (categoryId
@@ -29,11 +37,11 @@ export async function getSubcategories(categoryId?: string) {
     return results;
 }
 
-export async function getTransactions() {
+async function getTransactions() {
     return _db.collection('transactions').find().toArray();
 }
 
-export async function createTransaction(transactionInfo: TransactionCreationInfo) {
+async function createTransaction(transactionInfo: TransactionCreationInfo) {
 
     const { error, data } = transactionCreationInfoSchema.safeParse(transactionInfo);
     if (error) {
