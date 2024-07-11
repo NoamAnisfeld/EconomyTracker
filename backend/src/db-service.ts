@@ -1,4 +1,5 @@
 import { MongoClient } from 'mongodb';
+import { ObjectId } from 'mongodb';
 import { TransactionCreationInfo, transactionCreationInfoSchema } from './schemas.js';
 
 export {
@@ -7,6 +8,7 @@ export {
     getSubcategories,
     getTransactions,
     createTransaction,
+    deleteTransaction,
 }
 
 const { DB_URL, DB_NAME } = process.env;
@@ -50,4 +52,8 @@ async function createTransaction(transactionInfo: TransactionCreationInfo) {
 
     const { subcategory_id, amount, type, year, month } = data;
     return _db.collection('transactions').insertOne({ subcategory_id, amount, type, year, month });
+}
+
+async function deleteTransaction(transactionId: string) {
+    return _db.collection('transactions').deleteOne({ _id: new ObjectId(transactionId) });
 }

@@ -1,4 +1,11 @@
-import { useFetchCategoryNames, useFetchSubcategoryMapping, useFetchSubcategoryNames, useFetchTransactions } from "./hooks/queries";
+import { Trash2 as TrashIcon } from "lucide-react";
+import {
+    useFetchCategoryNames,
+    useFetchSubcategoryMapping,
+    useFetchSubcategoryNames,
+    useFetchTransactions
+} from "./hooks/queries";
+import { useDeleteTransaction } from "./hooks/mutations";
 
 type PresentableTransactionInfo = {
     _id: string,
@@ -36,13 +43,16 @@ const tableHeadersAndContent: [string, (info: PresentableTransactionInfo) => Rea
 export default function TransactionList() {
 
     const transactions = usePresentableTransactionInfo();
+    const deleteTransactionMutation = useDeleteTransaction();
 
     return (
         <table className="my-4 p-2 w-full">
             <thead>
                 <tr className="bg-gray-300">
                     {tableHeadersAndContent.map(([header]) =>
-                        <th className="p-2 text-start" key={header}>{header}</th>)}
+                        <th className="p-2 text-start" key={header}>{header}</th>)
+                    }
+                    <th></th>
                 </tr>
             </thead>
             <tbody>{
@@ -56,13 +66,18 @@ export default function TransactionList() {
                                 {content(transaction)}
                             </td>
                         )}
+                        <td className="p-2 ps-4">
+                            <button onClick={() => deleteTransactionMutation.mutate(transaction._id)}>
+                                <TrashIcon size="1.2em" />
+                            </button>
+                        </td>
                     </tr>
                 )
             }</tbody>
             <tfoot>
                 <tr className="bg-gray-300">
                     <th colSpan={2} className="p-2 text-start">מאזן</th>
-                    <td colSpan={3} className="p-2">
+                    <td colSpan={4} className="p-2">
                         <span dir="ltr">
                             {transactions.reduce((acc, transaction) => acc + transaction.amount, 0)}
                         </span>

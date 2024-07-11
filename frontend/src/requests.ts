@@ -29,3 +29,9 @@ export async function fetchTransactions() {
 export async function addTransaction(transactionCreationInfo: TransactionCreationInfo) {
     return await postJson(apiUrl('transactions'), transactionCreationInfo);
 }
+
+export async function deleteTransaction(transactionId: string) {
+    return await fetch(apiUrl(`transactions/${transactionId}`), {
+        method: 'DELETE',
+    });
+}
