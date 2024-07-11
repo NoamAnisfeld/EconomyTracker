@@ -25,12 +25,12 @@ function usePresentableTransactionInfo(): PresentableTransactionInfo[] {
     }))
 }
 
-const tableHeadersAndProperties: [string, keyof PresentableTransactionInfo][] = [
-    ['קטגוריה', 'category'],
-    ['תת קטגוריה', 'subcategory'],
-    ['סכום', 'amount'],
-    ['חודש', 'month'],
-    ['שנה', 'year'],
+const tableHeadersAndContent: [string, (info: PresentableTransactionInfo) => React.ReactNode][] = [
+    ['קטגוריה', info => info.category],
+    ['תת קטגוריה', info => info.subcategory],
+    ['סכום', info => <span dir="ltr">{info.amount}</span>],
+    ['חודש', info => info.month],
+    ['שנה', info => info.year],
 ]
 
 export default function TransactionList() {
@@ -41,23 +41,19 @@ export default function TransactionList() {
         <table className="my-4 p-2 w-full">
             <thead>
                 <tr className="bg-gray-300">
-                    {tableHeadersAndProperties.map(([header, property]) =>
-                        <th className="p-2 text-start" key={property}>{header}</th>
-                    )}
+                    {tableHeadersAndContent.map(([header]) =>
+                        <th className="p-2 text-start" key={header}>{header}</th>)}
                 </tr>
             </thead>
             <tbody>{
                 transactions.reverse().map((transaction) =>
                     <tr key={transaction._id} className={transaction.amount > 0 ? 'bg-green-500' : 'bg-red-500'}>
-                        {tableHeadersAndProperties.map(([, property]) =>
+                        {tableHeadersAndContent.map(([header, content]) =>
                             <td
                                 className="p-2"
-                                key={property}
+                                key={header}
                             >
-                                {property === 'amount'
-                                    ? <span dir="ltr">{transaction[property]}</span>
-                                    : transaction[property]
-                                }
+                                {content(transaction)}
                             </td>
                         )}
                     </tr>
@@ -66,7 +62,11 @@ export default function TransactionList() {
             <tfoot>
                 <tr className="bg-gray-300">
                     <th colSpan={2} className="p-2 text-start">מאזן</th>
-                    <td colSpan={3} className="p-2">{transactions.reduce((acc, transaction) => acc + transaction.amount, 0)}</td>
+                    <td colSpan={3} className="p-2">
+                        <span dir="ltr">
+                            {transactions.reduce((acc, transaction) => acc + transaction.amount, 0)}
+                        </span>
+                    </td>
                 </tr>
             </tfoot>
         </table>
