@@ -28,7 +28,8 @@ export const transactionSchema = z.object({
     subcategory_id: z.string(),
     amount: z.number(),
     type: transactionType,
-    date: z.number(),
+    year: z.number(),
+    month: z.number(),
 });
 export type Transaction = z.infer<typeof transactionSchema>;
 
@@ -48,6 +49,7 @@ export const transactionCreationInfoSchema = z.object({
     subcategory_id: z.string(),
     amount: z.number(),
     type: transactionType,
-    date: z.number(),
+    year: z.number().int(),
+    month: z.number().min(1).max(12),
 });
 export type TransactionCreationInfo = z.infer<typeof transactionCreationInfoSchema>;

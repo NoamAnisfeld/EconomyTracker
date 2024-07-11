@@ -5,7 +5,8 @@ type PresentableTransactionInfo = {
     category: string,
     subcategory: string,
     amount: number,
-    date: string,
+    month: number,
+    year: number,
 }
 function usePresentableTransactionInfo(): PresentableTransactionInfo[] {
 
@@ -19,7 +20,8 @@ function usePresentableTransactionInfo(): PresentableTransactionInfo[] {
         category: categories[subcategoryMapping[transaction.subcategory_id]],
         subcategory: subcategories[transaction.subcategory_id],
         amount: transaction.type === 'income' ? transaction.amount : -transaction.amount,
-        date: new Date(transaction.date).toLocaleDateString(),
+        month: transaction.month,
+        year: transaction.year,
     }))
 }
 
@@ -27,7 +29,8 @@ const tableHeadersAndProperties: [string, keyof PresentableTransactionInfo][] = 
     ['קטגוריה', 'category'],
     ['תת קטגוריה', 'subcategory'],
     ['סכום', 'amount'],
-    ['תאריך', 'date'],
+    ['חודש', 'month'],
+    ['שנה', 'year'],
 ]
 
 export default function TransactionList() {
@@ -63,7 +66,7 @@ export default function TransactionList() {
             <tfoot>
                 <tr className="bg-gray-300">
                     <th colSpan={2} className="p-2 text-start">מאזן</th>
-                    <td colSpan={2} className="p-2">{transactions.reduce((acc, transaction) => acc + transaction.amount, 0)}</td>
+                    <td colSpan={3} className="p-2">{transactions.reduce((acc, transaction) => acc + transaction.amount, 0)}</td>
                 </tr>
             </tfoot>
         </table>

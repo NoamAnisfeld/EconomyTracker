@@ -40,6 +40,6 @@ export async function createTransaction(transactionInfo: TransactionCreationInfo
         throw new Error(error.message);
     }
 
-    const { subcategory_id, amount, type, date } = data;
-    return _db.collection('transactions').insertOne({ subcategory_id, amount, type, date });
+    const { subcategory_id, amount, type, year, month } = data;
+    return _db.collection('transactions').insertOne({ subcategory_id, amount, type, year, month });
 }

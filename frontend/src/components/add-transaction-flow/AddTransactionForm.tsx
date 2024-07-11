@@ -17,6 +17,7 @@ import { SelectYear } from "./SelectYear"
 export default function AddTransactionForm({ reset }: { reset: () => void }) {
 
     const [amount, setAmount] = useState(0);
+    // month is one-based (1-12)
     const [month, setMonth] = useState((new Date).getMonth() + 1);
     const [year, setYear] = useState((new Date).getFullYear());
     const [transactionType, setTransactionType] = useState<TransactionType | undefined>();
@@ -47,7 +48,8 @@ export default function AddTransactionForm({ reset }: { reset: () => void }) {
             subcategory_id: subcategoryId,
             amount,
             type: transactionType,
-            date: new Date(year, month - 1).valueOf(),
+            year,
+            month,
         })
     }
 
