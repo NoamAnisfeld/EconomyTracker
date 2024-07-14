@@ -1,9 +1,10 @@
 import express from "express";
 import bodyParser from "body-parser";
 import { corsManager } from "./cors-manager.js";
-import { ASSETS_FOLDER, PORT } from "./globals.js";
+import { ASSETS_FOLDER } from "./globals.js";
 import { router } from "./routes.js";
 
+const PORT = process.env.PORT;
 init();
 
 function init() {
